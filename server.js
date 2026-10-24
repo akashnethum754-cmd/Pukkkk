@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: false }));
 // ── at-rest sealing: iv(12) | tag(16) | data ──
 const seal = b => { const iv = crypto.randomBytes(12), c = crypto.createCipheriv('aes-256-gcm', MK, iv);
   const e = Buffer.concat([c.update(b), c.final()]); return Buffer.concat([iv, c.getAuthTag(), e]); };
-const unseal = bin => { const b = Buffer.from(bin.buffer.subarray(0, bin.length()));
+const unseal = bin => { const b = Buffer.isBuffer(bin) ? bin : Buffer.from(bin.buffer.subarray(0, bin.length()));
   const d = crypto.createDecipheriv('aes-256-gcm', MK, b.subarray(0, 12)); d.setAuthTag(b.subarray(12, 28));
   return Buffer.concat([d.update(b.subarray(28)), d.final()]); };
 
@@ -32,6 +32,9 @@ const conv = (a, b) => [a, b].sort().join(':');
 const fire = (ids, ev, data) => pusher.trigger(ids.map(chan), ev, data).catch(() => {});
 
 let U, M;
+for (const m of ['get', 'post', 'delete']) { const o = app[m].bind(app);
+  app[m] = (p, ...h) => h.length ? o(p, ...h.map(f => f.constructor.name === 'AsyncFunction'
+    ? (q, r, n) => f(q, r, n).catch(e => { console.error(e); if (!r.headersSent) r.status(500).json({ error: 'Server error' }); }) : f)) : o(p); }
 
 // ── pages (no static folder, so .env is never exposed) ──
 const page = f => (q, r) => r.sendFile(path.join(__dirname, f));
