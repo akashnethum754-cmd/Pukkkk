@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#1a0713">
 <title>Lynko</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,13 +12,13 @@
 :root{--rose:#ff5c8a;--peach:#ffb38a;--lilac:#b28cff;--txt:#fff0f5;--mut:#d6a6ba;--line:rgba(255,255,255,.12);--panel:#240b1d}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 [hidden]{display:none!important}
-html,body{height:100%}
+html,body{height:100%;width:100%;overflow:hidden}
 body{font-family:'DM Sans',system-ui,sans-serif;color:var(--txt);overflow:hidden;background:#1a0713}
 button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
 input,textarea{font:16px 'DM Sans',sans-serif;color:var(--txt);background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:0;min-width:0}
 input:focus{border-color:var(--rose)}
 ::placeholder{color:#b98aa0}
-.app{height:100dvh;display:grid;grid-template-columns:370px 1fr}
+.app{position:relative;width:100%;height:100dvh;overflow:hidden;display:grid;grid-template-columns:370px 1fr}
 .side,.main{display:flex;flex-direction:column;min-height:0;position:relative}
 .side{background:#1d0817;border-right:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:6px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px}
@@ -31,7 +31,17 @@ input:focus{border-color:var(--rose)}
 .av{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:19px;flex:none;overflow:hidden;background:linear-gradient(135deg,var(--peach),var(--rose) 60%,var(--lilac));color:#3a0a24}
 .av img{width:100%;height:100%;object-fit:cover}
 .meb .av,.sm .av{width:38px;height:38px;font-size:16px}
+.srch{padding:0 12px 8px}.srch input{width:100%;border-radius:99px;padding:11px 18px;background:rgba(255,255,255,.08)}
+.chips{display:flex;gap:8px;padding:0 12px 10px;overflow-x:auto;scrollbar-width:none}
+.chips button{flex:none;padding:7px 16px;border-radius:99px;background:rgba(255,255,255,.08);font-size:14px;color:var(--mut);border:1px solid transparent}
+.chips button.on{background:rgba(255,92,138,.22);color:var(--txt);border-color:var(--rose)}
 .list{flex:1;overflow-y:auto}
+.nav{display:flex;border-top:1px solid var(--line);background:#1d0817;padding-bottom:env(safe-area-inset-bottom)}
+.nav button{flex:1;display:grid;justify-items:center;gap:2px;padding:9px 0 8px;font-size:12px;color:var(--mut)}
+.nav i{font-style:normal;font-size:21px;padding:2px 20px;border-radius:99px}.nav .on{color:var(--txt);font-weight:700}.nav .on i{background:rgba(255,92,138,.25)}
+.hero{padding:40px 24px;text-align:center;display:grid;gap:14px;justify-items:center}
+.hero>i{font-style:normal;font-size:70px;animation:beat 1.4s infinite;filter:drop-shadow(0 0 16px var(--rose))}
+.hero h2{font:italic 600 28px 'Fraunces',serif}.hero p{color:var(--mut);line-height:1.6;max-width:300px}.hero .idbox{max-width:300px}.hero .btn{max-width:300px;flex:none;width:100%}
 .item{width:100%;display:flex;align-items:center;gap:13px;padding:10px 14px;text-align:left}
 .item.on{background:rgba(255,255,255,.08)}
 .item .n{flex:1;min-width:0;border-bottom:1px solid var(--line);padding:6px 0 10px}
@@ -43,7 +53,7 @@ input:focus{border-color:var(--rose)}
 .badge{background:var(--rose);color:#2a0618;font-weight:700;font-size:12px;min-width:21px;height:21px;border-radius:99px;display:grid;place-items:center;padding:0 6px;font-style:normal}
 .badge:empty{display:none}
 .empty{padding:50px 24px;text-align:center;color:var(--mut);line-height:1.7}
-.fab{position:absolute;right:18px;bottom:calc(20px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:18px;font-size:24px;background:linear-gradient(135deg,var(--rose),#c14bff);box-shadow:0 10px 28px rgba(255,92,138,.45)}
+.fab{position:absolute;right:18px;bottom:calc(84px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:18px;font-size:24px;background:linear-gradient(135deg,var(--rose),#c14bff);box-shadow:0 10px 28px rgba(255,92,138,.45)}
 .main{--wp:radial-gradient(900px 700px at 10% 0%,#4a0d33,transparent 60%),#1a0713;background:#1a0713}
 .none{flex:1;display:grid;place-items:center;text-align:center;color:var(--mut);padding:30px;background:var(--wp)}
 .none i{display:block;font-style:normal;font-size:70px;animation:beat 1.4s infinite;filter:drop-shadow(0 0 18px var(--rose))}
@@ -86,7 +96,7 @@ input:focus{border-color:var(--rose)}
 .ov{position:fixed;inset:0;z-index:50;background:rgba(10,2,8,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px}
 .ov.sh{align-items:end;padding:0}
 .dlg{width:100%;max-width:340px;padding:22px;border-radius:24px;background:var(--panel);border:1px solid var(--line);text-align:center}
-.sh .dlg{max-width:520px;border-radius:26px 26px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));text-align:left;max-height:88dvh;overflow:auto}
+.sh .dlg{max-width:520px;border-radius:26px 26px 0 0;padding:20px 20px max(28px,calc(20px + env(safe-area-inset-bottom)));text-align:left;max-height:88dvh;overflow:auto}
 .dlg h3{margin-bottom:14px}.dlg input.pin{width:100%;text-align:center;font-size:24px;letter-spacing:8px}
 .dlg .r{display:flex;gap:10px;margin-top:14px}.dlg .r button,.btn{flex:1;padding:13px;border-radius:14px;background:rgba(255,255,255,.1);font-weight:700}
 .dlg .r .ok,.btn.p{background:linear-gradient(135deg,var(--rose),#c14bff)}
@@ -105,8 +115,10 @@ input:focus{border-color:var(--rose)}
 .bh{position:fixed;z-index:90;pointer-events:none;font-size:22px;animation:bh 1.4s ease-out forwards}
 @keyframes bh{to{transform:translate(var(--dx),var(--dy)) scale(var(--s));opacity:0}}
 .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);z-index:99;background:#000d;padding:10px 18px;border-radius:99px;font-size:14px}
-@media (max-width:760px){
+@media (max-width:760px),(hover:none) and (pointer:coarse){
  .app{grid-template-columns:1fr}
+ .sh .dlg{max-width:none;border-radius:24px 24px 0 0}
+ .b{max-width:84%}
  .main{position:absolute;inset:0;transform:translateX(100%);transition:transform .22s}
  .app.chatting .main{transform:none}
  .back{display:grid}
@@ -118,8 +130,11 @@ input:focus{border-color:var(--rose)}
 <div class="app" id="app">
   <aside class="side">
     <div class="bar"><button class="meb" id="meb"></button><b class="lg">Lynko<i>♥</i></b><button class="ic" id="menub">⋮</button></div>
+    <div class="srch"><input id="q" placeholder="Search chats" autocomplete="off"></div>
+    <div class="chips" id="chips"><button class="on" data-f="all">All</button><button data-f="unread">Unread</button><button data-f="locked">Locked 🔒</button></div>
     <div class="list" id="list"></div>
     <button class="fab" id="fab" title="New chat">💬</button>
+    <nav class="nav"><button class="on" id="n1"><i>💬</i>Chats</button><button id="n2"><i>🖼</i>Wallpaper</button><button id="n3"><i>👤</i>You</button></nav>
   </aside>
   <section class="main">
     <div class="none" id="none"><div><i>♥</i><p style="margin-top:14px;line-height:1.6">Pick a chat, or start a new one.<br>Everything vanishes after 24 hours.</p></div></div>
@@ -239,10 +254,16 @@ async function setLast(peer,m,unread,live){
   chats.set(peer,{m,txt:pvText(p),unread:peer==cur&&!document.hidden?0:u})}
 async function loadChats(){const d=await api('/api/chats');await Promise.all(d.map(x=>setLast(x.peer,x.last,x.unread)));renderList()}
 async function loadContacts(){const d=await api('/api/me');Object.assign(me,{about:d.about,dpv:d.dpv});contacts=new Map(d.contacts.map(c=>[c.id,c]));paintMe();renderList()}
+let flt='all',qs='';
 function renderList(){
-  const l=$('list');l.innerHTML='';let tot=0;
-  const arr=[...contacts.values()].sort((a,b)=>(chats.get(b.id)?.m.ts||'').localeCompare(chats.get(a.id)?.m.ts||''));
-  if(!arr.length){l.innerHTML='<div class="empty">No chats yet.<br>Tap 💬 and enter a friend’s ID.</div>';return}
+  const l=$('list');l.innerHTML='';let tot=0;chats.forEach(c=>tot+=c.unread||0);
+  document.title=(tot?`(${tot}) `:'')+'Lynko';
+  if(!contacts.size){
+    l.innerHTML=`<div class="hero"><i>♥</i><h2>Welcome to Lynko</h2><p>Share your ID with someone special, or add theirs, to start a private chat. Everything disappears after 24 hours.</p><div class="idbox" id="hid">Your ID — tap to copy<b>${me.id}</b></div><button class="btn p" id="hgo">Start your first chat</button></div>`;
+    $('hid').onclick=()=>{navigator.clipboard?.writeText(me.id);toast('ID copied')};$('hgo').onclick=newChat;return}
+  const arr=[...contacts.values()].sort((a,b)=>(chats.get(b.id)?.m.ts||'').localeCompare(chats.get(a.id)?.m.ts||''))
+    .filter(c=>c.username.includes(qs)&&(flt=='all'||(flt=='unread'&&chats.get(c.id)?.unread)||(flt=='locked'&&localStorage.getItem(lk(c.id)))));
+  if(!arr.length){l.innerHTML='<div class="empty">No chats found</div>';return}
   for(const c of arr){
     const ch=chats.get(c.id),locked=!!localStorage.getItem(lk(c.id)),b=document.createElement('button');
     b.className='item'+(c.id==cur?' on':'');
@@ -252,7 +273,7 @@ function renderList(){
     if(typingT[c.id]){pv.textContent='typing…';pv.classList.add('ty')}
     else pv.textContent=locked?'🔒 Locked chat':ch?((ch.m.from==me.id?(ch.m.r?'✓✓ ':'✓ '):'')+ch.txt):(c.about||'Say hi ♥');
     if(ch){const t=new Date(ch.m.ts);b.querySelector('time').textContent=t.toDateString()==new Date().toDateString()?hm(ch.m.ts):dayLbl(ch.m.ts);
-      if(ch.unread){b.querySelector('.badge').textContent=ch.unread>99?'99+':ch.unread;tot+=ch.unread}}
+      if(ch.unread){b.querySelector('.badge').textContent=ch.unread>99?'99+':ch.unread}}
     b.onclick=()=>openChat(c.id);l.appendChild(b);
   }
   document.title=(tot?`(${tot}) `:'')+'Lynko';
@@ -397,6 +418,9 @@ $('fg').onchange=$('fc').onchange=e=>{pickMedia(e.target.files[0]);e.target.valu
 
 // ── menus ──
 $('meb').onclick=profile;$('fab').onclick=newChat;
+$('q').oninput=e=>{qs=e.target.value.trim().toLowerCase();renderList()};
+document.querySelectorAll('#chips button').forEach(b=>b.onclick=()=>{flt=b.dataset.f;document.querySelectorAll('#chips button').forEach(x=>x.classList.toggle('on',x==b));renderList()});
+$('n1').onclick=()=>$('list').scrollTo({top:0,behavior:'smooth'});$('n2').onclick=wallpaper;$('n3').onclick=profile;
 $('menub').onclick=()=>items([['👤 Profile & About',profile],['🖼 Wallpaper',wallpaper],['💬 New chat',newChat],['⎋ Log out',async()=>{await fetch('/api/logout',{method:'POST'});leave()}]]);
 $('hav').onclick=()=>{const c=contacts.get(cur);if(!c)return;const o=sheet(`<div class="pf">${av(c,'big')}<h3 style="margin:0"></h3><p style="color:var(--mut);text-align:center"></p><div class="idbox">ID<b>${c.id}</b></div></div>`);
   o.querySelector('h3').textContent=c.username;o.querySelector('p').textContent=c.about||'Hey there! I’m using Lynko'};
