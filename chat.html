@@ -107,11 +107,44 @@ input:focus{border-color:var(--rose)}
 .pf input{width:100%}.idbox{width:100%;text-align:center;padding:12px;border-radius:14px;border:1px dashed rgba(255,92,138,.6);background:rgba(255,92,138,.1);color:var(--mut)}.idbox b{display:block;font-size:24px;letter-spacing:3px;color:var(--txt)}
 .wg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:10px 0}.wg button{aspect-ratio:3/4;border-radius:14px;border:2px solid var(--line);font-size:11px;display:grid;align-items:end;padding:5px;text-shadow:0 1px 3px #000}
 .wg button.on{border-color:var(--rose)}
-.pvw{display:flex;flex-direction:column;place-items:initial;padding:0;background:#0c0309}
-.pvw .x{position:absolute;top:calc(10px + env(safe-area-inset-top));left:10px;z-index:2;width:42px;height:42px;border-radius:50%;background:#0008;font-size:18px}
-.pvw .st{flex:1;display:grid;place-items:center;min-height:0;padding:56px 0 8px}.pvw .st img,.pvw .st video{max-width:100%;max-height:100%;object-fit:contain}
-.cb{display:flex;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:#1d0817}.cb input{flex:1;border-radius:24px}
+.pvw{display:flex;flex-direction:column;place-items:initial;padding:0;background:#0c0309;inset:auto;top:0;left:0;width:100%;height:100vh;height:100dvh;overflow:hidden}
+.pvw .x,.tst .x{position:absolute;top:calc(10px + env(safe-area-inset-top));left:10px;z-index:3;width:42px;height:42px;border-radius:50%;background:#0008;font-size:18px}
+/* media is pinned inside its box, so a tall video can never push the caption/send bar off screen */
+.pvw .st{position:relative;flex:1 1 0;min-height:0;overflow:hidden;margin-top:calc(56px + env(safe-area-inset-top))}
+.pvw .st img,.pvw .st video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.cb{flex:none;position:relative;z-index:3;display:flex;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:#1d0817}.cb input{flex:1;border-radius:24px}
 .lb{background:#000;padding:0}.lb img{max-width:100%;max-height:100%;object-fit:contain}
+.nav button{position:relative}.nav .dot{position:absolute;top:6px;left:calc(50% + 12px);width:10px;height:10px;border-radius:50%;background:var(--rose);border:2px solid #1d0817;font-style:normal}
+.sec{padding:14px 16px 4px;color:var(--mut);font-size:13px;font-weight:700}
+.ring{position:relative;padding:3px;border-radius:50%;background:#5b3a50;flex:none}
+.ring.un,.ring.mine{background:linear-gradient(135deg,var(--peach),var(--rose) 55%,var(--lilac))}.ring.none{background:none}
+.ring .av{border:2px solid #1d0817;box-sizing:content-box}
+.ring .plus{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--rose),#c14bff);display:grid;place-items:center;font-weight:700;border:2px solid #1d0817;font-size:15px;line-height:1}
+.qt{display:flex;gap:8px;align-items:center;background:rgba(0,0,0,.25);border-left:3px solid var(--peach);border-radius:8px;padding:5px 8px;margin-bottom:5px;font-size:13.5px;overflow:hidden}
+.qt img{width:40px;height:40px;object-fit:cover;border-radius:6px;flex:none}.qt>div{min-width:0}
+.qt b{display:block;color:var(--peach);font-size:12.5px}.qt span{display:block;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+.sv{position:fixed;top:0;left:0;width:100%;height:100vh;height:100dvh;z-index:40;background:#000;display:flex;flex-direction:column;overflow:hidden;user-select:none;-webkit-user-select:none}
+.spg{display:flex;gap:4px;padding:calc(8px + env(safe-area-inset-top)) 10px 0;z-index:3;flex:none}
+.spg i{flex:1;height:3px;border-radius:3px;background:#fff4;overflow:hidden}.spg b{display:block;height:100%;width:0;background:#fff}
+.shd{display:flex;align-items:center;gap:10px;padding:10px;z-index:3;flex:none}
+.shd .who .av{width:40px;height:40px;font-size:16px}
+.shd .tm{flex:1;min-width:0}.shd .tm b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.shd .tm small{color:#fffc;font-size:12.5px}
+.shd button{width:40px;height:40px;border-radius:50%;font-size:18px;flex:none}
+.scn{position:relative;flex:1 1 0;min-height:0;overflow:hidden}
+.scn .cont{position:absolute;inset:0;display:grid;place-items:center}
+.scn .cont img,.scn .cont video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.scn .cont.txt{padding:28px;text-align:center;font:600 30px/1.3 'DM Sans',sans-serif;white-space:pre-wrap;word-break:break-word;overflow:auto}
+.scn .ssp{position:absolute;inset:0;margin:auto;width:38px;height:38px;border:3px solid #fff5;border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+.scap{position:absolute;left:0;right:0;bottom:0;padding:44px 18px 14px;text-align:center;background:linear-gradient(transparent,#000b);font-size:16px;white-space:pre-wrap;word-break:break-word;pointer-events:none}
+.sft{flex:none;z-index:3;padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:#000}
+.sft .rp{display:flex;gap:8px}.sft .rp input{flex:1;border-radius:24px}.sft .hb{width:48px;height:48px;font-size:26px;flex:none}
+.vws{width:100%;padding:13px;border-radius:14px;background:rgba(255,255,255,.1);font-weight:700}
+.vr{display:flex;justify-content:space-between;gap:10px;padding:13px 6px;border-bottom:1px solid var(--line)}.vr small{color:var(--mut)}
+.tst{display:grid;place-items:center;padding:0;inset:auto;top:0;left:0;width:100%;height:100vh;height:100dvh;background:#c14bff}
+.tst textarea{width:100%;max-width:520px;height:55%;background:none;border:0;text-align:center;font:600 30px/1.3 'DM Sans',sans-serif;resize:none;color:#fff;padding:20px}
+.tst textarea::placeholder{color:#fff9}
+.tst .pal{position:absolute;top:calc(10px + env(safe-area-inset-top));right:10px;width:42px;height:42px;border-radius:50%;background:#0006;font-size:20px}
+.tst .send{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom))}
 .bh{position:fixed;z-index:90;pointer-events:none;font-size:22px;animation:bh 1.4s ease-out forwards}
 @keyframes bh{to{transform:translate(var(--dx),var(--dy)) scale(var(--s));opacity:0}}
 .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);z-index:99;background:#000d;padding:10px 18px;border-radius:99px;font-size:14px}
@@ -130,11 +163,11 @@ input:focus{border-color:var(--rose)}
 <div class="app" id="app">
   <aside class="side">
     <div class="bar"><button class="meb" id="meb"></button><b class="lg">Lynko<i>♥</i></b><button class="ic" id="menub">⋮</button></div>
-    <div class="srch"><input id="q" placeholder="Search chats" autocomplete="off"></div>
+    <div class="srch" id="srch"><input id="q" placeholder="Search chats" autocomplete="off"></div>
     <div class="chips" id="chips"><button class="on" data-f="all">All</button><button data-f="unread">Unread</button><button data-f="locked">Locked 🔒</button></div>
     <div class="list" id="list"></div>
     <button class="fab" id="fab" title="New chat">💬</button>
-    <nav class="nav"><button class="on" id="n1"><i>💬</i>Chats</button><button id="n2"><i>🖼</i>Wallpaper</button><button id="n3"><i>👤</i>You</button></nav>
+    <nav class="nav"><button class="on" id="n1"><i>💬</i>Chats</button><button id="n4"><i>✨</i>Status<em class="dot" id="sdot" hidden></em></button><button id="n2"><i>🖼</i>Wallpaper</button><button id="n3"><i>👤</i>You</button></nav>
   </aside>
   <section class="main">
     <div class="none" id="none"><div><i>♥</i><p style="margin-top:14px;line-height:1.6">Pick a chat, or start a new one.<br>Everything vanishes after 24 hours.</p></div></div>
@@ -152,7 +185,7 @@ input:focus{border-color:var(--rose)}
     </div>
   </section>
 </div>
-<input type="file" id="fg" accept="image/*,video/*" hidden><input type="file" id="fc" accept="image/*" capture="environment" hidden>
+<input type="file" id="fs" accept="image/*,video/*" hidden><input type="file" id="fsc" accept="image/*" capture="environment" hidden><input type="file" id="fg" accept="image/*,video/*" hidden><input type="file" id="fc" accept="image/*" capture="environment" hidden>
 <script>
 const $=id=>document.getElementById(id), enc=new TextEncoder(), dec=new TextDecoder();
 const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
@@ -175,7 +208,7 @@ const sha=async s=>hex(await crypto.subtle.digest('SHA-256',enc.encode(s)));
 // ── crypto (ECDH → AES-GCM, keys cached per friend) ──
 async function shared(id){
   if(keys[id])return keys[id];
-  const pub=await crypto.subtle.importKey('jwk',JSON.parse(contacts.get(id).pub),{name:'ECDH',namedCurve:'P-256'},false,[]);
+  const pub=await crypto.subtle.importKey('jwk',JSON.parse((id==me.id?me:contacts.get(id)).pub),{name:'ECDH',namedCurve:'P-256'},false,[]);
   return keys[id]=await crypto.subtle.deriveKey({name:'ECDH',public:pub},priv,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
 async function seal(id,data){const iv=crypto.getRandomValues(new Uint8Array(12));
@@ -258,6 +291,7 @@ let flt='all',qs='';
 function renderList(){
   const l=$('list');l.innerHTML='';let tot=0;chats.forEach(c=>tot+=c.unread||0);
   document.title=(tot?`(${tot}) `:'')+'Lynko';
+  if(tab=='status')return renderStatus();
   if(!contacts.size){
     l.innerHTML=`<div class="hero"><i>♥</i><h2>Welcome to Lynko</h2><p>Share your ID with someone special, or add theirs, to start a private chat. Everything disappears after 24 hours.</p><div class="idbox" id="hid">Your ID — tap to copy<b>${me.id}</b></div><button class="btn p" id="hgo">Start your first chat</button></div>`;
     $('hid').onclick=()=>{navigator.clipboard?.writeText(me.id);toast('ID copied')};$('hgo').onclick=newChat;return}
@@ -298,7 +332,7 @@ async function openChat(id){
   $('msgs').style.scrollBehavior='auto';scrollEnd();markRead();
 }
 function closeChat(){$('app').classList.remove('chatting');['head','msgs','comp'].forEach(x=>$(x).hidden=true);$('none').hidden=false;$('attm').hidden=true;cur=null;renderList()}
-addEventListener('popstate',()=>{if(cur)closeChat()});
+addEventListener('popstate',()=>{if(skipPop){skipPop=0;return}if(sv){sv._close(true);return}if(cur)closeChat()});
 $('back').onclick=()=>history.back();
 async function pull(){
   if(!cur)return;const id=cur,last=msgs.filter(m=>!m.pending).slice(-1)[0]?.ts||'';
@@ -325,8 +359,8 @@ async function getMedia(m,p){
 function lightbox(u){const o=document.createElement('div');o.className='ov lb';o.innerHTML='<img>';o.firstChild.src=u;o.onclick=()=>o.remove();document.body.appendChild(o)}
 const fd=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 function mediaBox(m,p,b){
-  const d=document.createElement('div');d.className='mb';d.style.aspectRatio=(p.w||4)+'/'+(p.h||3);
-  d.innerHTML='<img class="th" alt=""><i class="sp"></i>';if(p.th)d.firstChild.src=p.th;
+  const d=document.createElement('div');d.className='mb';d.style.aspectRatio=(+p.w||4)+'/'+(+p.h||3);
+  d.innerHTML='<img class="th" alt=""><i class="sp"></i>';if(safeTh(p.th))d.firstChild.src=p.th;
   if(p.k=='vid'){d.insertAdjacentHTML('beforeend','<span class="play">▶</span><span class="dur"></span>');d.querySelector('.dur').textContent=(p.d?fd(p.d)+' · ':'')+(p.size/1048576).toFixed(1)+' MB'}
   d._load=async()=>{
     if(d._busy||d.classList.contains('ok'))return;d._busy=1;d.classList.remove('bad');d.classList.add('ld');
@@ -341,7 +375,11 @@ function paint(m,p){
   const dl=new Date(m.ts).toDateString();if(dl!=lastDay){lastDay=dl;const c=document.createElement('div');c.className='sys';c.textContent=dayLbl(m.ts);box.appendChild(c)}
   const r=document.createElement('div');r.className='row '+(mine?'me':'them');r.id='m'+m.id;r._m=m;
   const b=document.createElement('div');b.className='b';r.appendChild(b);
-  if(p.k=='text'){const t=document.createElement('div');t.className='tx';t.textContent=p.v;if(jumbo(p.v))b.classList.add('jumbo');b.appendChild(t)}
+  if(p.k=='text'){
+    if(p.re){const q=document.createElement('div'),th=safeTh(p.re.th);q.className='qt';q.innerHTML=(th?'<img alt="">':'')+'<div><b></b><span></span></div>';
+      if(th)q.querySelector('img').src=th;q.querySelector('b').textContent='Status';
+      q.querySelector('span').textContent=p.re.k=='text'?String(p.re.t||''):(p.re.k=='img'?'📷 ':'🎥 ')+String(p.re.t||(p.re.k=='img'?'Photo':'Video'));b.appendChild(q)}
+    const t=document.createElement('div');t.className='tx';t.textContent=p.v;if(!p.re&&jumbo(p.v))b.classList.add('jumbo');b.appendChild(t)}
   else{b.classList.add('med');b.appendChild(mediaBox(m,p,b));if(p.cap){const t=document.createElement('div');t.className='tx';t.textContent=p.cap;b.appendChild(t)}}
   const mt=document.createElement('span');mt.className='meta';mt.innerHTML='<time></time>'+(mine?'<i class="tk"></i>':'');mt.firstChild.textContent=hm(m.ts);b.appendChild(mt);
   b.insertAdjacentHTML('beforeend','<span class="rxp" hidden></span>');
@@ -366,18 +404,23 @@ async function react(id,e,el){
   try{const d=await api('/api/react','POST',{id,e});setRx(id,d.rx);if(d.rx[me.id]=='❤️'){const r=(el||$('m'+id))?.getBoundingClientRect();burst(r?r.left+r.width/2:undefined,r?r.top:undefined)}}catch(x){toast(x.message)}}
 
 // ── sending: instant bubble first, network after ──
-async function deliver(kind,p,bytes,local){
-  const peer=cur,m={id:'t'+(++tc),from:me.id,to:peer,kind,ts:new Date().toISOString(),media:kind!='text',rx:{},r:false,pending:true};
-  pl.set(m.id,p);if(local)urls[m.id]=local;seen.add(m.id);msgs.push(m);paint(m,p);
+async function upMedia(bytes){
+  const r=await fetch('/api/media',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:bytes});
+  if(r.status==401){leave();throw new Error('auth')}
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Upload failed');return d.key}
+async function deliver(kind,p,bytes,local,to){
+  const peer=to||cur,show=peer==cur,m={id:'t'+(++tc),from:me.id,to:peer,kind,ts:new Date().toISOString(),media:kind!='text',rx:{},r:false,pending:true};
+  const drop=()=>{const i=msgs.indexOf(m);if(i>-1)msgs.splice(i,1)};
+  pl.set(m.id,p);if(local)urls[m.id]=local;seen.add(m.id);if(show){msgs.push(m);paint(m,p)}
   try{
     const s=await seal(peer,enc.encode(JSON.stringify(p))),body={to:peer,kind,iv:s.iv,ct:b64(s.ct)};
-    if(bytes){const sb=await seal(peer,bytes);body.bIv=sb.iv;body.blob=b64(sb.ct)}
+    if(bytes){const sb=await seal(peer,bytes);body.bIv=sb.iv;body.bkey=await upMedia(sb.ct)}   // encrypted file goes to the bucket, never to Mongo
     const real=await api('/api/messages','POST',body),el=$('m'+m.id);
     pl.set(real.id,p);if(urls[m.id])urls[real.id]=urls[m.id];
-    if(seen.has(real.id)){el?.remove();msgs.splice(msgs.indexOf(m),1)}
+    if(seen.has(real.id)){el?.remove();drop()}
     else{seen.add(real.id);Object.assign(m,real);m.pending=false;if(el){el.id='m'+real.id;tickEl(el)}}
     setLast(peer,real,0).then(renderList);
-  }catch(e){$('m'+m.id)?.remove();msgs.splice(msgs.indexOf(m),1);toast('Not sent: '+e.message)}
+  }catch(e){$('m'+m.id)?.remove();drop();toast('Not sent: '+e.message)}
 }
 function sendText(){
   if(!cur)return;const v=$('txt').value.trim(),t=v||'❤️';$('txt').value='';grow();
@@ -399,28 +442,153 @@ const prepVid=f=>new Promise(res=>{
   const fb=()=>res({blob:f,w:v.videoWidth||16,h:v.videoHeight||9,d:v.duration||0,th:''});setTimeout(fb,3000);
   v.onloadeddata=()=>{v.currentTime=Math.min(.1,(v.duration||1)/2)};
   v.onseeked=()=>res({blob:f,w:v.videoWidth,h:v.videoHeight,d:v.duration,th:mini(v,v.videoWidth,v.videoHeight)});v.onerror=fb});
-function pickMedia(f){
-  if(!f||!cur)return;const img=f.type.startsWith('image/'),vid=f.type.startsWith('video/');
-  if(!img&&!vid)return toast('Only photos and videos');if(vid&&f.size>8*1048576)return toast('Video must be under 8 MB');
+const MAXV=16;   // MB
+function pickMedia(f,mode='chat'){
+  if(!f||(mode=='chat'&&!cur))return;const img=f.type.startsWith('image/'),vid=f.type.startsWith('video/');
+  if(!img&&!vid)return toast('Only photos and videos');if(vid&&f.size>MAXV*1048576)return toast('Video must be under '+MAXV+' MB');
   const job=(img?prepImg(f):prepVid(f)).catch(()=>null),k=img?'img':'vid';   // starts compressing while you type the caption
   const o=document.createElement('div');o.className='ov pvw';
   o.innerHTML='<button class="x">✕</button><div class="st"></div><div class="cb"><input placeholder="Add a caption…" maxlength="300"><button class="send">➤</button></div>';
-  const el=document.createElement(img?'img':'video');el.src=URL.createObjectURL(f);if(vid){el.controls=true;el.playsInline=true;el.muted=true}
+  const pu=URL.createObjectURL(f),el=document.createElement(img?'img':'video');el.src=pu;if(vid){el.controls=true;el.playsInline=true;el.muted=true}
   o.querySelector('.st').appendChild(el);document.body.appendChild(o);
-  o.querySelector('.x').onclick=()=>o.remove();
+  const close=()=>{o.remove();setTimeout(()=>URL.revokeObjectURL(pu),500)};
+  o.querySelector('.x').onclick=close;
   o.querySelector('.send').onclick=async()=>{
-    const cap=o.querySelector('input').value.trim();o.remove();const r=await job;if(!r)return toast('Could not read this file');
-    deliver(k,{k,mime:r.blob.type||f.type,w:r.w,h:r.h,d:r.d,th:r.th,cap,size:r.blob.size},await r.blob.arrayBuffer(),URL.createObjectURL(r.blob))}}
+    const cap=o.querySelector('input').value.trim();close();const r=await job;if(!r)return toast('Could not read this file');
+    const p={k,mime:r.blob.type||f.type,w:r.w,h:r.h,d:r.d,th:r.th,cap,size:r.blob.size},bytes=await r.blob.arrayBuffer();
+    if(mode=='status')return doPost(p,bytes);
+    deliver(k,p,bytes,URL.createObjectURL(r.blob))}}
 $('att').onclick=e=>{e.stopPropagation();$('attm').hidden=!$('attm').hidden};
 document.addEventListener('click',()=>{$('attm').hidden=true});
 $('gal').onclick=()=>$('fg').click();$('cam').onclick=()=>$('fc').click();
 $('fg').onchange=$('fc').onchange=e=>{pickMedia(e.target.files[0]);e.target.value=''};
 
+// ── status (WhatsApp-style · 24h · end-to-end encrypted) ──
+// every status gets a random AES key; that key is wrapped separately for each contact (ECDH), the file goes to the bucket encrypted
+let tab='chats',sts=[],stc=new Map(),sv=null,skipPop=0,posting=0;
+const BG=['linear-gradient(135deg,#ff5c8a,#c14bff)','linear-gradient(135deg,#ffb38a,#ff5c8a)','linear-gradient(135deg,#4a1d7a,#0f0a2b)','linear-gradient(135deg,#0f766e,#164e63)','linear-gradient(135deg,#be123c,#4c0519)','linear-gradient(135deg,#1d4ed8,#7c3aed)'];
+const bgOf=n=>BG[Math.max(0,Math.min(BG.length-1,parseInt(n)||0))];   // index only: a sender can never inject CSS
+const safeTh=t=>typeof t=='string'&&/^data:image\/(jpeg|png|webp);base64,[\w+/=]+$/.test(t)?t:'';
+const ago=t=>(new Date(t).toDateString()==new Date().toDateString()?'Today':'Yesterday')+', '+hm(t);
+
+async function loadStatuses(){
+  const d=await api('/api/statuses'),out=[];
+  await Promise.all(d.map(async s=>{try{
+    let c=stc.get(s.id);
+    if(!c){const raw=await open(s.from,s.wk.iv,unb64(s.wk.ct)),k=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['encrypt','decrypt']);
+      const p=JSON.parse(dec.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(s.iv)},k,unb64(s.ct))));c={k,p};stc.set(s.id,c)}
+    out.push({...s,k:c.k,p:c.p})}catch{}}));
+  out.sort((a,b)=>a.ts.localeCompare(b.ts));sts=out;updDot();if(tab=='status')renderStatus()}
+const updDot=()=>{$('sdot').hidden=!sts.some(s=>s.from!=me.id&&!s.seen)};
+async function postStatus(p,bytes){
+  const raw=crypto.getRandomValues(new Uint8Array(32)),k=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['encrypt']),iv=crypto.getRandomValues(new Uint8Array(12));
+  const body={iv:b64(iv),ct:b64(await crypto.subtle.encrypt({name:'AES-GCM',iv},k,enc.encode(JSON.stringify(p)))),keys:{}};
+  for(const id of [...contacts.keys(),me.id]){try{const w=await seal(id,raw);body.keys[id]={iv:w.iv,ct:b64(w.ct)}}catch{}}
+  if(bytes){const bi=crypto.getRandomValues(new Uint8Array(12));body.bIv=b64(bi);body.bkey=await upMedia(await crypto.subtle.encrypt({name:'AES-GCM',iv:bi},k,bytes))}
+  return api('/api/status','POST',body)}
+async function doPost(p,bytes){
+  if(posting)return toast('Still posting…');posting=1;toast('Posting status…');
+  try{await postStatus(p,bytes);toast('Status posted ♥');await loadStatuses()}catch(e){toast('Not posted: '+e.message)}finally{posting=0}}
+async function statusMedia(s){
+  const id='s'+s.id;if(urls[id])return urls[id];
+  const r=await fetch('/api/status/'+s.id+'/blob');if(!r.ok)throw 0;
+  const buf=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(s.bIv)},s.k,await r.arrayBuffer());
+  const mime=/^(image|video)\/[\w.+-]+$/.test(s.p.mime||'')?s.p.mime:(s.p.k=='img'?'image/jpeg':'video/mp4');
+  return urls[id]=URL.createObjectURL(new Blob([buf],{type:mime}))}
+
+function srow(c,label,sub,ring,plus,fn){
+  const b=document.createElement('button');b.className='item';
+  b.innerHTML=`<div class="ring ${ring}">${av(c)}${plus?'<span class="plus">+</span>':''}</div><div class="n"><div class="r1"><b></b></div><div class="r2"><span class="pv"></span></div></div>`;
+  b.querySelector('b').textContent=label;b.querySelector('.pv').textContent=sub;b.onclick=fn;
+  if(plus)b.querySelector('.plus').onclick=e=>{e.stopPropagation();addStatus()};return b}
+function renderStatus(){
+  const l=$('list');l.innerHTML='';const g=new Map();sts.forEach(s=>{if(!g.has(s.from))g.set(s.from,[]);g.get(s.from).push(s)});
+  const my=g.get(me.id)||[];
+  l.appendChild(srow(me,'My status',my.length?my.length+' update'+(my.length>1?'s':'')+' · '+ago(my[my.length-1].ts):'Tap to add a status update',my.length?'mine':'none',1,()=>my.length?openViewer(me.id):addStatus()));
+  const oth=[...g].filter(([id])=>id!=me.id&&contacts.has(id)).map(([id,a])=>({id,a,un:a.some(s=>!s.seen),t:a[a.length-1].ts})).sort((x,y)=>y.t.localeCompare(x.t));
+  const sec=(t,arr)=>{if(!arr.length)return;const h=document.createElement('div');h.className='sec';h.textContent=t;l.appendChild(h);
+    arr.forEach(x=>{const c=contacts.get(x.id);l.appendChild(srow(c,c.username,ago(x.t),x.un?'un':'',0,()=>openViewer(x.id)))})};
+  sec('Recent updates',oth.filter(x=>x.un));sec('Viewed updates',oth.filter(x=>!x.un));
+  if(!oth.length){const e=document.createElement('div');e.className='empty';e.innerHTML='No updates yet.<br>Statuses from your chats show up here and disappear after 24 hours.';l.appendChild(e)}}
+function setTab(t){
+  tab=t;$('n1').classList.toggle('on',t=='chats');$('n4').classList.toggle('on',t=='status');
+  $('srch').hidden=$('chips').hidden=t=='status';$('fab').textContent=t=='status'?'📷':'💬';$('fab').title=t=='status'?'New status':'New chat';
+  if(t=='status')loadStatuses().catch(()=>{});renderList()}
+function addStatus(){items([['🖼 Photo / video',()=>$('fs').click()],['📷 Camera',()=>$('fsc').click()],['✏️ Text',textStatus]])}
+$('fs').onchange=$('fsc').onchange=e=>{pickMedia(e.target.files[0],'status');e.target.value=''};
+function textStatus(){
+  let bi=0;const o=document.createElement('div');o.className='ov tst';
+  o.innerHTML='<button class="x">✕</button><button class="pal">🎨</button><textarea maxlength="300" placeholder="Type a status"></textarea><button class="send">➤</button>';
+  const t=o.querySelector('textarea'),paint=()=>o.style.background=BG[bi];paint();document.body.appendChild(o);t.focus();
+  o.querySelector('.x').onclick=()=>o.remove();o.querySelector('.pal').onclick=()=>{bi=(bi+1)%BG.length;paint()};
+  o.querySelector('.send').onclick=()=>{const v=t.value.trim();if(!v)return;o.remove();doPost({k:'text',v,bg:bi})}}
+
+function openViewer(uid,start){
+  const list=sts.filter(s=>s.from==uid);if(!list.length||sv)return;const own=uid==me.id,c=own?me:contacts.get(uid);
+  let i=start!=null?start:Math.max(0,list.findIndex(s=>!s.seen)),ready=false,paused=false,hd=0,ty=0,acc=0,tk=0,el=null,last=performance.now();
+  const o=document.createElement('div');o.className='sv';sv=o;
+  o.innerHTML=`<div class="spg">${list.map(()=>'<i><b></b></i>').join('')}</div>
+   <div class="shd"><div class="who">${av(c)}</div><div class="tm"><b></b><small></small></div><button class="tr" hidden>🗑</button><button class="cl">✕</button></div>
+   <div class="scn"></div>
+   <div class="sft">${own?'<button class="vws">👁 0</button>':'<div class="rp"><input maxlength="500" placeholder="Reply…" enterkeyhint="send"><button class="hb">❤️</button><button class="send">➤</button></div>'}</div>`;
+  document.body.appendChild(o);history.pushState({sv:1},'');
+  const scn=o.querySelector('.scn'),bars=[...o.querySelectorAll('.spg b')],inp=o.querySelector('input');
+  o.querySelector('.tm b').textContent=own?'My status':c.username;
+  const sync=()=>{paused=!!(hd||ty);if(el&&el.tagName=='VIDEO'){paused?el.pause():el.play().catch(()=>{})}};
+  const close=(pop)=>{if(!sv)return;clearInterval(timer);el?.pause?.();o.remove();sv=null;if(!pop){skipPop=1;history.back()}updDot();if(tab=='status')renderStatus()};
+  o._close=close;
+  const go=d=>{const n=i+d;if(n>=list.length)return close();show(Math.max(0,n))};
+  const timer=setInterval(()=>{const n=performance.now(),dt=n-last;last=n;if(paused||!ready||document.hidden)return;
+    let f;if(el&&el.tagName=='VIDEO'&&el.duration)f=el.currentTime/el.duration;else{acc+=dt;f=acc/5000}
+    bars[i].style.width=Math.min(100,f*100)+'%';if(f>=1)go(1)},60);
+  async function show(n){
+    i=n;const my=++tk,s=list[i];ready=false;acc=0;el=null;scn.innerHTML='';
+    bars.forEach((b,j)=>b.style.width=j<i?'100%':'0');o.querySelector('.tm small').textContent=ago(s.ts);
+    const cont=document.createElement('div');cont.className='cont';scn.appendChild(cont);
+    if(own){o.querySelector('.tr').hidden=false;o.querySelector('.vws').textContent='👁 '+(s.views||[]).length}
+    if(s.p.k=='text'){cont.className='cont txt';cont.style.background=bgOf(s.p.bg);cont.textContent=String(s.p.v||'');ready=true}
+    else{
+      cont.innerHTML='<i class="ssp"></i>';
+      try{const u=await statusMedia(s);if(my!=tk)return;cont.innerHTML='';
+        el=document.createElement(s.p.k=='img'?'img':'video');el.src=u;cont.appendChild(el);
+        if(s.p.k=='vid'){el.playsInline=true;el.onended=()=>{if(my==tk)go(1)};el.play().catch(()=>{el.muted=true;el.play().catch(()=>{})})}
+        if(s.p.cap){const cp=document.createElement('div');cp.className='scap';cp.textContent=String(s.p.cap);scn.appendChild(cp)}
+        sync();ready=true}
+      catch{if(my!=tk)return;cont.innerHTML='';cont.textContent='Couldn’t load this status';ready=true}}
+    if(!own&&!s.seen){s.seen=true;api('/api/status/'+s.id+'/view','POST').catch(()=>{})}
+    const nx=list[i+1];if(nx&&nx.p.k!='text'&&!urls['s'+nx.id])statusMedia(nx).catch(()=>{});   // preload next
+  }
+  let pd=0;
+  scn.onpointerdown=()=>{pd=Date.now();hd=1;sync()};
+  scn.onpointerup=e=>{hd=0;sync();if(Date.now()-pd<250)go(e.clientX/innerWidth<.3?-1:1)};
+  scn.onpointercancel=scn.onpointerleave=()=>{hd=0;sync()};
+  o.querySelector('.cl').onclick=()=>close();
+  o.querySelector('.tr').onclick=async()=>{const s=list[i];ty=1;sync();
+    const ok=await ask('Delete this status?',{ok:'Delete'});ty=0;sync();if(!ok)return;
+    try{await api('/api/status/'+s.id,'DELETE');sts=sts.filter(x=>x.id!=s.id);list.splice(i,1);if(!list.length)return close();bars[bars.length-1].parentNode.remove();bars.pop();show(Math.min(i,list.length-1))}
+    catch(e){toast(e.message)}};
+  if(own)o.querySelector('.vws').onclick=()=>{
+    const v=list[i].views||[];ty=1;sync();
+    const sh=sheet(`<h3 style="margin-bottom:6px">Viewed by ${v.length}</h3>${v.length?'':'<p style="color:var(--mut);padding:10px 0">No views yet</p>'}<div class="vl"></div>`),rm=sh.remove.bind(sh);
+    sh.remove=()=>{rm();ty=0;sync()};
+    v.slice().sort((a,b)=>b.ts.localeCompare(a.ts)).forEach(x=>{const r=document.createElement('div');r.className='vr';r.innerHTML='<b></b><small></small>';
+      r.firstChild.textContent=contacts.get(x.id)?.username||x.id;r.lastChild.textContent=ago(x.ts);sh.querySelector('.vl').appendChild(r)})};
+  else{
+    const reply=txt=>{txt=txt.trim();if(!txt)return false;const s=list[i];
+      deliver('text',{k:'text',v:txt,re:{sid:s.id,k:s.p.k,t:String(s.p.k=='text'?s.p.v:s.p.cap||'').slice(0,80),th:s.p.k=='text'?'':safeTh(s.p.th)}},null,null,uid);
+      toast('Reply sent ♥');return true};
+    inp.onfocus=()=>{ty=1;sync()};inp.onblur=()=>{ty=0;sync()};
+    const send=()=>{if(reply(inp.value)){inp.value='';inp.blur()}};
+    o.querySelector('.send').onclick=send;inp.onkeydown=e=>{if(e.key=='Enter'){e.preventDefault();send()}};
+    o.querySelector('.hb').onclick=e=>{reply('❤️');burst(e.clientX,e.clientY)}}
+  show(Math.min(Math.max(i,0),list.length-1));
+}
+
 // ── menus ──
-$('meb').onclick=profile;$('fab').onclick=newChat;
+$('meb').onclick=profile;$('fab').onclick=()=>tab=='status'?addStatus():newChat();
 $('q').oninput=e=>{qs=e.target.value.trim().toLowerCase();renderList()};
 document.querySelectorAll('#chips button').forEach(b=>b.onclick=()=>{flt=b.dataset.f;document.querySelectorAll('#chips button').forEach(x=>x.classList.toggle('on',x==b));renderList()});
-$('n1').onclick=()=>$('list').scrollTo({top:0,behavior:'smooth'});$('n2').onclick=wallpaper;$('n3').onclick=profile;
+$('n1').onclick=()=>{if(tab!='chats')setTab('chats');else $('list').scrollTo({top:0,behavior:'smooth'})};$('n4').onclick=()=>setTab('status');$('n2').onclick=wallpaper;$('n3').onclick=profile;
 $('menub').onclick=()=>items([['👤 Profile & About',profile],['🖼 Wallpaper',wallpaper],['💬 New chat',newChat],['⎋ Log out',async()=>{await fetch('/api/logout',{method:'POST'});leave()}]]);
 $('hav').onclick=()=>{const c=contacts.get(cur);if(!c)return;const o=sheet(`<div class="pf">${av(c,'big')}<h3 style="margin:0"></h3><p style="color:var(--mut);text-align:center"></p><div class="idbox">ID<b>${c.id}</b></div></div>`);
   o.querySelector('h3').textContent=c.username;o.querySelector('p').textContent=c.about||'Hey there! I’m using Lynko'};
@@ -437,7 +605,7 @@ document.addEventListener('visibilitychange',()=>{
   const pj=localStorage.getItem('lynko_priv');if(!pj)return leave();
   let cfg;try{[me,cfg]=await Promise.all([api('/api/me'),api('/api/config')])}catch{return}
   priv=await crypto.subtle.importKey('jwk',JSON.parse(pj),{name:'ECDH',namedCurve:'P-256'},false,['deriveKey']);
-  contacts=new Map(me.contacts.map(c=>[c.id,c]));paintMe();applyWp();renderList();loadChats().catch(()=>{});
+  contacts=new Map(me.contacts.map(c=>[c.id,c]));paintMe();applyWp();renderList();loadChats().catch(()=>{});loadStatuses().catch(()=>{});
   const ps=new Pusher(cfg.key,{cluster:cfg.cluster,channelAuthorization:{endpoint:'/api/pusher/auth'}}),ch=ps.subscribe('private-u-'+me.id);
   ch.bind('msg',async d=>{
     const peer=d.from==me.id?d.to:d.from;
@@ -452,8 +620,9 @@ document.addEventListener('visibilitychange',()=>{
   ch.bind('read',d=>{msgs.forEach(m=>{if(m.from==me.id&&m.to==d.by&&!m.r){m.r=true;tickEl($('m'+m.id))}});const c=chats.get(d.by);if(c&&c.m.from==me.id)c.m.r=true;renderList()});
   ch.bind('rx',d=>{setRx(d.id,d.rx);if(d.by!=me.id&&d.rx[d.by]=='❤️'){const r=$('m'+d.id)?.getBoundingClientRect();if(r)burst(r.left+r.width/2,r.top)}});
   ch.bind('typing',d=>{clearTimeout(typingT[d.from]);typingT[d.from]=setTimeout(()=>{delete typingT[d.from];setSub();renderList()},4000);if(d.from==cur)setSub();renderList()});
+  for(const ev of ['status','sview','sdel'])ch.bind(ev,()=>loadStatuses().catch(()=>{}));
   ch.bind('prof',()=>loadContacts().then(()=>{if(cur)setSub()}).catch(()=>{}));
-  let first=1;ps.connection.bind('connected',()=>{if(first){first=0;return}if(cur)pull();loadChats().catch(()=>{})});
+  let first=1;ps.connection.bind('connected',()=>{if(first){first=0;return}if(cur)pull();loadChats().catch(()=>{});loadStatuses().catch(()=>{})});
 })();
 </script>
 </body>
