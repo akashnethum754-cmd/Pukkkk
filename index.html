@@ -1,1 +1,101 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a0713">
+<title>Lynko — chats that fade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--rose:#ff5c8a;--peach:#ffb38a;--lilac:#b28cff;--txt:#fff0f5;--mut:#d6a6ba;--line:rgba(255,255,255,.14)}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--txt);overflow:hidden;display:grid;place-items:center;padding:20px;
+background:radial-gradient(900px 700px at 15% 0%,#5e1040 0,transparent 60%),radial-gradient(800px 700px at 100% 100%,#34145f 0,transparent 60%),#1a0713}
+.heart{position:fixed;bottom:-50px;pointer-events:none;animation:rise linear forwards;z-index:0}
+@keyframes rise{10%{opacity:.55}100%{transform:translateY(-115vh) rotate(30deg);opacity:0}}
+.card{position:relative;z-index:1;width:100%;max-width:400px;padding:34px 28px;border-radius:28px;background:rgba(255,255,255,.07);
+border:1px solid var(--line);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 30px 80px rgba(255,60,130,.18)}
+.logo{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:6px}
+.logo b{font:italic 600 44px 'Fraunces',serif;letter-spacing:-1px;background:linear-gradient(120deg,var(--peach),var(--rose) 55%,var(--lilac));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo i{font-style:normal;font-size:34px;animation:beat 1.4s infinite;filter:drop-shadow(0 0 12px var(--rose))}
+@keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.25)}28%{transform:scale(1)}42%{transform:scale(1.15)}}
+.sub{text-align:center;color:var(--mut);font-size:14px;margin-bottom:24px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:rgba(0,0,0,.25);border-radius:16px;padding:4px;margin-bottom:18px}
+.tabs button{background:none;color:var(--mut);padding:11px;border-radius:12px;border:0;font:500 15px 'DM Sans';cursor:pointer}
+.tabs button.on{background:linear-gradient(135deg,var(--rose),#c14bff);color:#fff}
+input{width:100%;font:16px 'DM Sans';color:var(--txt);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;outline:0}
+input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(255,92,138,.2)}
+input::placeholder{color:#b98aa0}
+.go{width:100%;border:0;cursor:pointer;color:#fff;font:700 16px 'DM Sans';padding:15px;border-radius:16px;margin-top:4px;background:linear-gradient(135deg,var(--rose),#c14bff);box-shadow:0 10px 30px rgba(255,92,138,.35)}
+.go:disabled{opacity:.6}
+#err{min-height:20px;color:#ffb3c6;font-size:14px;margin-top:12px;text-align:center}
+.note{margin-top:14px;text-align:center;color:var(--mut);font-size:12.5px;line-height:1.5}
+@media (prefers-reduced-motion:reduce){.heart,.logo i{animation:none}}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="logo"><b>Lynko</b><i>♥</i></div>
+  <p class="sub">Private chats that disappear in 24 hours</p>
+  <div class="tabs"><button id="tl" class="on">Log in</button><button id="tr">Create account</button></div>
+  <input id="u" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false">
+  <input id="p" type="password" placeholder="Password" autocomplete="current-password">
+  <button class="go" id="go">Log in</button>
+  <div id="err"></div>
+  <p class="note">Messages are encrypted on your device. Not even the server can read them. If you forget your password, your chats can't be recovered.</p>
+</main>
+<script>
+// floating hearts
+setInterval(()=>{const h=document.createElement('div');h.className='heart';h.textContent=['♥','♡','❤'][Math.random()*3|0];
+h.style.left=Math.random()*100+'vw';h.style.fontSize=10+Math.random()*26+'px';h.style.color=['#ff5c8a','#ffb38a','#b28cff'][Math.random()*3|0];
+h.style.animationDuration=7+Math.random()*7+'s';document.body.appendChild(h);setTimeout(()=>h.remove(),15000)},650);
+
+const $=id=>document.getElementById(id), enc=new TextEncoder();
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+const b64=b=>{let s='',u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)};
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function kdf(pw,salt){const m=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits']);
+  return crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:enc.encode(salt),iterations:150000},m,256)}
+const wrapKey=async(pw,u)=>crypto.subtle.importKey('raw',await kdf(pw,'wrap:'+u),'AES-GCM',false,['encrypt','decrypt']);
+const authOf=async(pw,u)=>hex(await kdf(pw,'auth:'+u));   // server never sees the real password
+
+let mode='login';
+function setMode(m){mode=m;$('tl').classList.toggle('on',m=='login');$('tr').classList.toggle('on',m!='login');
+  $('go').textContent=m=='login'?'Log in':'Create account';$('p').autocomplete=m=='login'?'current-password':'new-password';$('err').textContent=''}
+$('tl').onclick=()=>setMode('login');$('tr').onclick=()=>setMode('reg');
+
+async function post(url,body){const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Something went wrong');return d}
+
+$('go').onclick=async()=>{
+  const username=$('u').value.trim().toLowerCase(), pw=$('p').value;
+  if(!username||pw.length<6){$('err').textContent='Enter a username and a password of 6+ characters';return}
+  $('go').disabled=true;$('err').textContent=mode=='reg'?'Creating your keys…':'';
+  try{
+    const auth=await authOf(pw,username), wk=await wrapKey(pw,username);
+    if(mode=='reg'){
+      const kp=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},true,['deriveKey']);
+      const pub=JSON.stringify(await crypto.subtle.exportKey('jwk',kp.publicKey));
+      const priv=JSON.stringify(await crypto.subtle.exportKey('jwk',kp.privateKey));
+      const iv=crypto.getRandomValues(new Uint8Array(12));
+      const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},wk,enc.encode(priv));
+      const encPriv=JSON.stringify({iv:b64(iv),ct:b64(ct)});
+      const me=await post('/api/register',{username,auth,pub,encPriv});
+      localStorage.setItem('lynko_priv',priv);localStorage.setItem('lynko_id',me.id);
+    }else{
+      const me=await post('/api/login',{username,auth});
+      const e=JSON.parse(me.encPriv);
+      const priv=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(e.iv)},wk,unb64(e.ct)));
+      localStorage.setItem('lynko_priv',priv);localStorage.setItem('lynko_id',me.id);
+    }
+    location.href='/chat';
+  }catch(e){$('err').textContent=e.message;$('go').disabled=false}
+};
+['u','p'].forEach(i=>$(i).addEventListener('keydown',e=>{if(e.key=='Enter')$('go').click()}));
+fetch('/api/me').then(r=>{if(r.ok&&localStorage.getItem('lynko_priv'))location.href='/chat'});
+</script>
+</body>
+</html>
