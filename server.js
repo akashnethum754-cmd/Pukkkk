@@ -11,7 +11,7 @@ const pusher = new Pusher({ appId: process.env.PUSHER_APP_ID, key: process.env.P
 const app = express();
 app.set('trust proxy', 1);
 app.use(compression({ filter: (q, r) => !q.path.startsWith('/api/blob') && compression.filter(q, r) }));
-app.use(express.json({ limit: '14mb' }));
+app.use(express.json({ limit: '1mb' }));   // media no longer travels as JSON
 app.use(express.urlencoded({ extended: false }));
 
 const raw = b => Buffer.isBuffer(b) ? b : Buffer.from(b.buffer.subarray(0, b.length()));
@@ -31,16 +31,13 @@ const conv = (a, b) => [a, b].sort().join(':');
 const fire = (ids, ev, data) => { if (ids.length) pusher.trigger(ids.map(chan), ev, data).catch(() => {}); };
 const PUB = { _id: 0, id: 1, username: 1, pub: 1, about: 1, dpv: 1 };
 
-let U, M, B = [], rr = 0;   // B = blob collections, one per Mongo cluster
-async function putBlob(buf) {
-  const id = new ObjectId();
-  for (let t = 0; t < B.length; t++) {
-    const s = rr++ % B.length; if (!B[s]) continue;
-    try { await B[s].insertOne({ _id: id, d: seal(buf), createdAt: new Date() }); return { bs: s, bid: id }; }
-    catch (e) { console.error('shard', s + 1, e.message); }
-  }
-  throw new Error('No storage available');
-}
+let U, M, S;   // users, messages, statuses  (media is NOT in Mongo any more)
+
+// ── media storage (encrypted files only; see storage.js) ──
+const store = require('./storage');
+if (!store) console.warn('⚠ No media storage configured: photo/video sending is disabled (set LAKIYA_API_KEY or S3_* — see README)');
+const mine = (uid, k) => typeof k === 'string' && k.startsWith(`u/${uid}/`) && /^u\/\d{8}\/[\w-]{6,40}$/.test(k);
+const delObj = k => store && store.del(k).catch(() => {});
 
 // async errors -> JSON 500 (never crash)
 for (const m of ['get', 'post', 'delete']) { const o = app[m].bind(app);
@@ -77,7 +74,7 @@ app.get('/api/me', auth, async (req, res) => {
   const me = await U.findOne({ id: req.u.id });
   if (!me) return res.status(401).json({ error: 'Login required' });
   const contacts = await U.find({ id: { $in: me.contacts } }, { projection: PUB }).toArray();
-  res.json({ id: me.id, username: me.username, about: me.about || '', dpv: me.dpv || 0, contacts });
+  res.json({ id: me.id, username: me.username, pub: me.pub, about: me.about || '', dpv: me.dpv || 0, contacts });
 });
 app.post('/api/contacts', auth, async (req, res) => {
   const id = String(req.body.id || '').trim();
@@ -108,7 +105,7 @@ app.get('/api/dp/:id', auth, async (req, res) => {
 
 // ── messages (server only sees ciphertext) ──
 const out = m => ({ id: m._id.toString(), from: m.from, to: m.to, kind: m.kind, iv: m.iv, bIv: m.bIv || null,
-  ct: unseal(m.ct).toString('base64'), media: !!m.bid, r: !!m.r, rx: m.rx || {}, ts: m.createdAt.toISOString() });
+  ct: unseal(m.ct).toString('base64'), media: !!m.bkey, r: !!m.r, rx: m.rx || {}, ts: m.createdAt.toISOString() });
 
 app.get('/api/chats', auth, async (req, res) => {   // last message + unread per chat
   const me = await U.findOne({ id: req.u.id }, { projection: { contacts: 1 } });
@@ -121,12 +118,21 @@ app.get('/api/messages', auth, async (req, res) => {
   if (req.query.after) q.createdAt = { $gt: new Date(req.query.after) };
   res.json((await M.find(q).sort({ createdAt: 1 }).limit(300).toArray()).map(out));
 });
+// raw encrypted bytes straight to the bucket (no base64, no Mongo)
+app.post('/api/media', auth, express.raw({ type: 'application/octet-stream', limit: '20mb' }), async (req, res) => {
+  if (!store) return res.status(503).json({ error: 'Media storage is not configured on the server' });
+  if (!Buffer.isBuffer(req.body) || req.body.length < 29) return res.status(400).json({ error: 'Empty file' });
+  res.json({ key: await store.put(req.u.id, req.body) });
+});
 app.post('/api/messages', auth, async (req, res) => {
-  const { to, kind, iv, ct, bIv, blob } = req.body || {};
+  const { to, kind, iv, ct, bIv, bkey } = req.body || {};
   if (!['text', 'img', 'vid'].includes(kind) || !iv || !ct || String(ct).length > 40000) return res.status(400).json({ error: 'Bad message' });
   if (!(await U.findOne({ id: String(to) }, { projection: { _id: 1 } }))) return res.status(404).json({ error: 'User not found' });
   const doc = { conv: conv(req.u.id, to), from: req.u.id, to: String(to), kind, iv, ct: seal(Buffer.from(ct, 'base64')), createdAt: new Date() };
-  if (kind !== 'text' && blob) Object.assign(doc, await putBlob(Buffer.from(blob, 'base64')), { bIv });
+  if (kind !== 'text') {
+    if (!mine(req.u.id, bkey) || !bIv) return res.status(400).json({ error: 'Missing media' });
+    Object.assign(doc, { bkey, bIv: String(bIv) });
+  }
   const [r] = await Promise.all([M.insertOne(doc),
     U.updateOne({ id: req.u.id }, { $addToSet: { contacts: doc.to } }), U.updateOne({ id: doc.to }, { $addToSet: { contacts: req.u.id } })]);
   const m = out({ ...doc, _id: r.insertedId });
@@ -135,17 +141,14 @@ app.post('/api/messages', auth, async (req, res) => {
 });
 app.get('/api/blob/:id', auth, async (req, res) => {
   let m; try { m = await M.findOne({ _id: new ObjectId(req.params.id) }); } catch {}
-  if (!m || !m.bid || (m.from !== req.u.id && m.to !== req.u.id)) return res.status(404).end();
-  const d = await B[m.bs]?.findOne({ _id: m.bid });
-  if (!d) return res.status(404).end();
-  res.set({ 'X-IV': m.bIv, 'Content-Type': 'application/octet-stream', 'Cache-Control': 'private, max-age=3600' });
-  res.send(unseal(d.d));
+  if (!m || !m.bkey || !store || (m.from !== req.u.id && m.to !== req.u.id)) return res.status(404).end();
+  await store.send(m.bkey, res, { 'X-IV': m.bIv, 'Cache-Control': 'private, max-age=3600' });
 });
 app.delete('/api/messages/:id', auth, async (req, res) => {
   let m; try { m = await M.findOne({ _id: new ObjectId(req.params.id) }); } catch {}
   if (!m || m.from !== req.u.id) return res.status(403).json({ error: 'Only the sender can delete' });
   await M.deleteOne({ _id: m._id });
-  if (m.bid) B[m.bs]?.deleteOne({ _id: m.bid }).catch(() => {});
+  if (m.bkey) delObj(m.bkey);
   fire([m.from, m.to], 'del', { id: req.params.id });
   res.json({ ok: 1 });
 });
@@ -167,22 +170,68 @@ app.post('/api/react', auth, async (req, res) => {
   res.json({ rx });
 });
 
+// ── status (24h, end-to-end encrypted: one random key per status, wrapped for every contact) ──
+const sOut = (s, uid) => ({ id: s._id.toString(), from: s.from, ts: s.createdAt.toISOString(), iv: s.iv, ct: unseal(s.ct).toString('base64'),
+  wk: (s.keys || {})[uid] || null, media: !!s.bkey, bIv: s.bIv || null, seen: !!(s.views || {})[uid],
+  ...(s.from === uid ? { views: Object.entries(s.views || {}).map(([id, t]) => ({ id, ts: new Date(t).toISOString() })) } : {}) });
+const sGet = async id => { try { return await S.findOne({ _id: new ObjectId(id) }); } catch { return null; } };
+
+app.post('/api/status', auth, async (req, res) => {
+  const { iv, ct, keys, bkey, bIv } = req.body || {};
+  if (!iv || !ct || String(ct).length > 20000 || !keys || typeof keys !== 'object') return res.status(400).json({ error: 'Bad status' });
+  const me = await U.findOne({ id: req.u.id }, { projection: { contacts: 1 } });
+  const wk = {};
+  for (const id of [...me.contacts, req.u.id]) { const w = keys[id];
+    if (w && typeof w.iv === 'string' && typeof w.ct === 'string' && w.ct.length < 400) wk[id] = { iv: w.iv, ct: w.ct }; }
+  if (!wk[req.u.id]) return res.status(400).json({ error: 'Bad status' });
+  if (await S.countDocuments({ from: req.u.id }) >= 30) return res.status(400).json({ error: 'Too many active statuses (max 30)' });
+  const doc = { from: req.u.id, createdAt: new Date(), iv: String(iv), ct: seal(Buffer.from(ct, 'base64')), keys: wk, views: {} };
+  if (bkey) { if (!mine(req.u.id, bkey) || !bIv) return res.status(400).json({ error: 'Missing media' }); Object.assign(doc, { bkey, bIv: String(bIv) }); }
+  const r = await S.insertOne(doc);
+  fire(Object.keys(wk), 'status', { from: req.u.id });
+  res.json(sOut({ ...doc, _id: r.insertedId }, req.u.id));
+});
+app.get('/api/statuses', auth, async (req, res) => {
+  const me = await U.findOne({ id: req.u.id }, { projection: { contacts: 1 } });
+  const q = { createdAt: { $gt: new Date(Date.now() - 864e5) },
+    $or: [{ from: req.u.id }, { from: { $in: me.contacts }, ['keys.' + req.u.id]: { $exists: true } }] };
+  res.json((await S.find(q).sort({ createdAt: 1 }).limit(300).toArray()).map(s => sOut(s, req.u.id)));
+});
+app.post('/api/status/:id/view', auth, async (req, res) => {
+  const s = await sGet(req.params.id);
+  if (!s || s.from === req.u.id || !(s.keys || {})[req.u.id]) return res.status(404).end();
+  const r = await S.updateOne({ _id: s._id, ['views.' + req.u.id]: { $exists: false } }, { $set: { ['views.' + req.u.id]: new Date() } });
+  if (r.modifiedCount) fire([s.from], 'sview', { id: req.params.id, by: req.u.id });
+  res.json({ ok: 1 });
+});
+app.get('/api/status/:id/blob', auth, async (req, res) => {
+  const s = await sGet(req.params.id);
+  if (!s || !s.bkey || !store || (s.from !== req.u.id && !(s.keys || {})[req.u.id])) return res.status(404).end();
+  await store.send(s.bkey, res, { 'Cache-Control': 'private, max-age=3600' });
+});
+app.delete('/api/status/:id', auth, async (req, res) => {
+  const s = await sGet(req.params.id);
+  if (!s || s.from !== req.u.id) return res.status(403).json({ error: 'Only the owner can delete' });
+  await S.deleteOne({ _id: s._id }); if (s.bkey) delObj(s.bkey);
+  fire(Object.keys(s.keys || {}), 'sdel', { id: req.params.id });
+  res.json({ ok: 1 });
+});
+
 app.post('/api/pusher/auth', auth, (req, res) => {
   const { socket_id, channel_name } = req.body;
   if (channel_name !== chan(req.u.id)) return res.status(403).end();
   res.send(pusher.authorizeChannel(socket_id, channel_name));
 });
 
+app.use((e, q, r, n) => r.status(e.status || 500).json({ error: e.type === 'entity.too.large' ? 'File too large' : 'Server error' }));
+
 (async () => {
-  const uris = [process.env.MONGODB_URI, ...Array.from({ length: 19 }, (_, i) => process.env['MONGODB_URI_' + (i + 2)])];
-  const dbn = process.env.MONGODB_DB || 'lynko';
-  const cl = await Promise.all(uris.map((u, i) => !u ? null : MongoClient.connect(u).catch(e => {
-    if (!i) throw e; console.error('Skipping MONGODB_URI_' + (i + 1) + ':', e.message); return null; })));
-  const dbs = cl.map(c => c && c.db(dbn));
-  U = dbs[0].collection('users'); M = dbs[0].collection('messages');
-  B = dbs.map(d => d && d.collection('blobs'));
+  const cl = await MongoClient.connect(process.env.MONGODB_URI);
+  const db = cl.db(process.env.MONGODB_DB || 'lynko');
+  U = db.collection('users'); M = db.collection('messages'); S = db.collection('statuses');
   await U.createIndex({ id: 1 }, { unique: true }); await U.createIndex({ username: 1 }, { unique: true });
   await M.createIndex({ conv: 1, createdAt: 1 }); await M.createIndex({ createdAt: 1 }, { expireAfterSeconds: 86400 });
-  await Promise.all(B.filter(Boolean).map(b => b.createIndex({ createdAt: 1 }, { expireAfterSeconds: 86400 })));
-  app.listen(process.env.PORT || 3000, () => console.log(`Lynko on :${process.env.PORT || 3000} · ${B.filter(Boolean).length} Mongo cluster(s)`));
+  await S.createIndex({ from: 1, createdAt: -1 }); await S.createIndex({ createdAt: 1 }, { expireAfterSeconds: 86400 });
+  app.listen(process.env.PORT || 3000, () => console.log(`Lynko on :${process.env.PORT || 3000} · media: ${store ? store.name : 'DISABLED'}`));
+  if (store) { store.sweep(); setInterval(store.sweep, 36e5); }
 })().catch(e => { console.error(e); process.exit(1); });
