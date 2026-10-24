@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#1a0713">
+<title>Lynko</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<style>
+:root{--rose:#ff5c8a;--peach:#ffb38a;--lilac:#b28cff;--txt:#fff0f5;--mut:#d6a6ba;--line:rgba(255,255,255,.12);--glass:rgba(255,255,255,.07)}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--txt);overflow:hidden;
+background:radial-gradient(900px 700px at 10% 0%,#5e1040 0,transparent 60%),radial-gradient(800px 700px at 100% 100%,#34145f 0,transparent 60%),#1a0713}
+.heart{position:fixed;bottom:-50px;pointer-events:none;animation:rise linear forwards;z-index:0}
+@keyframes rise{10%{opacity:.4}100%{transform:translateY(-115vh) rotate(30deg);opacity:0}}
+button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
+input{font:16px 'DM Sans',sans-serif;color:var(--txt);background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;padding:12px 14px;outline:0;min-width:0}
+input:focus{border-color:var(--rose)}
+input::placeholder{color:#b98aa0}
+.app{position:relative;z-index:1;height:100dvh;display:grid;grid-template-columns:340px 1fr}
+.side,.main{display:flex;flex-direction:column;min-height:0;background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.side{border-right:1px solid var(--line)}
+.top{padding:calc(14px + env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;justify-content:space-between}
+.brand b{font:italic 600 30px 'Fraunces',serif;background:linear-gradient(120deg,var(--peach),var(--rose) 55%,var(--lilac));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand b i{font-style:normal;display:inline-block;animation:beat 1.4s infinite;-webkit-text-fill-color:var(--rose)}
+@keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.25)}28%{transform:scale(1)}42%{transform:scale(1.15)}}
+.ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:18px;background:rgba(255,255,255,.08)}
+.myid{margin-top:10px;width:100%;text-align:left;padding:10px 14px;border-radius:14px;background:rgba(255,92,138,.14);border:1px dashed rgba(255,92,138,.5);font-size:13px;color:var(--mut)}
+.myid b{display:block;font-size:20px;letter-spacing:2px;color:var(--txt)}
+.add{display:flex;gap:8px;margin-top:10px}.add input{flex:1}
+.add button{padding:0 16px;border-radius:14px;font-weight:700;background:linear-gradient(135deg,var(--rose),#c14bff)}
+.list{flex:1;overflow-y:auto;padding:8px}
+.item{width:100%;display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;text-align:left}
+.item:hover,.item.on{background:rgba(255,255,255,.09)}
+.av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:18px;flex:none;background:linear-gradient(135deg,var(--peach),var(--rose) 60%,var(--lilac));color:#3a0a24}
+.item .n{flex:1;min-width:0}.item .n div{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.item .n small{color:var(--mut)}
+.badge{background:var(--rose);border-radius:99px;font-size:12px;font-weight:700;padding:2px 8px}
+.empty{padding:40px 20px;text-align:center;color:var(--mut);line-height:1.6}
+.main{position:relative}
+.head{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line)}
+.head .t{flex:1;min-width:0}.head .t div{font-weight:700}.head .t small{color:var(--mut);font-size:12px}
+.back{display:none}
+.msgs{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
+.msgs.hide{filter:blur(14px);pointer-events:none}
+.row{display:flex}.row.me{justify-content:flex-end}
+.b{max-width:min(78%,460px);padding:9px 13px 7px;border-radius:20px;line-height:1.4;word-break:break-word;font-size:15.5px;position:relative}
+.them .b{background:rgba(255,255,255,.1);border-bottom-left-radius:6px}
+.me .b{background:linear-gradient(135deg,#ff5c8a,#b64bff);border-bottom-right-radius:6px;cursor:pointer}
+.b time{display:block;text-align:right;font-size:11px;opacity:.65;margin-top:2px}
+.b img,.b video{display:block;max-width:100%;max-height:340px;border-radius:14px;margin-bottom:2px;background:rgba(0,0,0,.25)}
+.ph{display:grid;place-items:center;width:220px;height:140px;border-radius:14px;background:rgba(0,0,0,.25);font-size:14px;color:var(--mut)}
+.sys{align-self:center;font-size:12px;color:var(--mut);background:rgba(0,0,0,.2);padding:5px 12px;border-radius:99px;margin:6px 0}
+.comp{display:flex;gap:8px;align-items:center;padding:10px 12px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.comp input{flex:1}
+.send{width:46px;height:46px;border-radius:50%;font-size:18px;background:linear-gradient(135deg,var(--rose),#c14bff);box-shadow:0 6px 20px rgba(255,92,138,.4)}
+.none{flex:1;display:grid;place-items:center;text-align:center;color:var(--mut);padding:30px}
+.none i{display:block;font-style:normal;font-size:64px;animation:beat 1.4s infinite;filter:drop-shadow(0 0 18px var(--rose))}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(10,2,8,.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center;padding:20px}
+.dlg{width:100%;max-width:330px;padding:24px;border-radius:24px;background:#2a0f22;border:1px solid var(--line);text-align:center}
+.dlg h3{margin-bottom:14px;font-weight:700}.dlg input{width:100%;text-align:center;font-size:24px;letter-spacing:8px}
+.dlg .r{display:flex;gap:10px;margin-top:14px}.dlg .r button{flex:1;padding:12px;border-radius:14px;background:rgba(255,255,255,.1);font-weight:700}
+.dlg .r .ok{background:linear-gradient(135deg,var(--rose),#c14bff)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:60;background:#000c;padding:10px 18px;border-radius:99px;font-size:14px}
+@media (max-width:760px){
+ .app{grid-template-columns:1fr}
+ .main{position:absolute;inset:0;transform:translateX(100%);transition:transform .25s;background:#1d0817}
+ .app.chatting .main{transform:none}
+ .back{display:grid}
+}
+@media (prefers-reduced-motion:reduce){.heart,.brand b i,.none i{animation:none}.main{transition:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="side">
+    <div class="top">
+      <div class="brand"><b>Lynko<i>♥</i></b><button class="ic" id="out" title="Log out">⎋</button></div>
+      <button class="myid" id="myid">Your ID — tap to copy<b id="mid">········</b></button>
+      <div class="add"><input id="aid" placeholder="Friend's ID" inputmode="numeric" maxlength="8"><button id="addb">Add</button></div>
+    </div>
+    <div class="list" id="list"></div>
+  </aside>
+  <section class="main">
+    <div class="none" id="none"><div><i>♥</i><p style="margin-top:14px">Pick a chat, or add a friend with their ID.<br>Everything vanishes after 24 hours.</p></div></div>
+    <div class="head" id="head" hidden>
+      <button class="ic back" id="back">‹</button>
+      <div class="av" id="hav" style="width:40px;height:40px;font-size:16px"></div>
+      <div class="t"><div id="hn"></div><small>End-to-end encrypted · clears in 24h</small></div>
+      <button class="ic" id="lockb" title="Chat lock">🔓</button>
+    </div>
+    <div class="msgs" id="msgs" hidden></div>
+    <div class="comp" id="comp" hidden>
+      <button class="ic" id="att" title="Photo or video">📎</button>
+      <input type="file" id="file" accept="image/*,video/*" hidden>
+      <input id="txt" placeholder="Say something sweet…" autocomplete="off" enterkeyhint="send">
+      <button class="send" id="send">➤</button>
+    </div>
+  </section>
+</div>
+<script>
+// ── floating hearts ──
+setInterval(()=>{const h=document.createElement('div');h.className='heart';h.textContent=['♥','♡','❤'][Math.random()*3|0];
+h.style.left=Math.random()*100+'vw';h.style.fontSize=10+Math.random()*24+'px';h.style.color=['#ff5c8a','#ffb38a','#b28cff'][Math.random()*3|0];
+h.style.animationDuration=8+Math.random()*7+'s';document.body.appendChild(h);setTimeout(()=>h.remove(),16000)},900);
+
+const $=id=>document.getElementById(id), enc=new TextEncoder(), dec=new TextDecoder();
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+const b64=b=>{let s='',u=new Uint8Array(b);for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return btoa(s)};
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const toast=t=>{const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2500)};
+async function api(url,method='GET',body){
+  const r=await fetch(url,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
+  if(r.status==401){leave();throw new Error('auth')}
+  const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Error');return d}
+function leave(){localStorage.removeItem('lynko_priv');location.href='/'}
+
+let me, priv, cur=null, msgs=[], seen=new Set(), contacts=new Map(), unread={}, keys={}, urls={}, unlocked=new Set();
+
+// ── crypto ──
+async function shared(id){
+  if(keys[id])return keys[id];
+  const p=contacts.get(id);
+  const pub=await crypto.subtle.importKey('jwk',JSON.parse(p.pub),{name:'ECDH',namedCurve:'P-256'},false,[]);
+  return keys[id]=await crypto.subtle.deriveKey({name:'ECDH',public:pub},priv,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function seal(id,data){const iv=crypto.getRandomValues(new Uint8Array(12));
+  return {iv:b64(iv),ct:await crypto.subtle.encrypt({name:'AES-GCM',iv},await shared(id),data)}}
+async function open(id,iv,ct){return crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(iv)},await shared(id),ct)}
+
+// ── modals ──
+function ask(title,{pin=false,ok='OK'}={}){return new Promise(res=>{
+  const o=document.createElement('div');o.className='ov';
+  o.innerHTML=`<div class="dlg"><h3></h3>${pin?'<input type="password" inputmode="numeric" maxlength="6" placeholder="••••">':''}<div class="r"><button class="no">Cancel</button><button class="ok">${ok}</button></div></div>`;
+  o.querySelector('h3').textContent=title;document.body.appendChild(o);
+  const i=o.querySelector('input');i&&i.focus();
+  const done=v=>{o.remove();res(v)};
+  o.querySelector('.no').onclick=()=>done(null);o.querySelector('.ok').onclick=()=>done(pin?i.value:true);
+  i&&i.addEventListener('keydown',e=>{if(e.key=='Enter')done(i.value)});
+})}
+const sha=async s=>hex(await crypto.subtle.digest('SHA-256',enc.encode(s)));
+const lockKey=id=>`lk:${me.id}:${id}`;
+
+// ── contacts list ──
+const uname=id=>contacts.get(id)?.username||id;
+function renderList(){
+  const l=$('list');l.innerHTML='';
+  if(!contacts.size){l.innerHTML='<div class="empty">No chats yet.<br>Share your ID or add a friend’s ID above.</div>';return}
+  for(const c of contacts.values()){
+    const b=document.createElement('button');b.className='item'+(c.id==cur?' on':'');
+    const locked=!!localStorage.getItem(lockKey(c.id));
+    b.innerHTML=`<div class="av"></div><div class="n"><div></div><small></small></div>${unread[c.id]?`<span class="badge">${unread[c.id]}</span>`:''}`;
+    b.querySelector('.av').textContent=c.username[0].toUpperCase();
+    b.querySelector('.n div').textContent=c.username;
+    b.querySelector('small').textContent=(locked?'🔒 Locked · ':'')+'ID '+c.id;
+    b.onclick=()=>openChat(c.id);l.appendChild(b);
+  }
+}
+async function reloadContacts(){const d=await api('/api/me');contacts=new Map(d.contacts.map(c=>[c.id,c]));renderList()}
+
+// ── chat ──
+async function openChat(id){
+  if(cur&&cur!=id)unlocked.delete(cur);
+  if(localStorage.getItem(lockKey(id))&&!unlocked.has(id)){
+    const p=await ask('Enter PIN to open this chat',{pin:true});
+    if(p===null)return;
+    if(await sha(p+id)!==localStorage.getItem(lockKey(id))){toast('Wrong PIN');return}
+    unlocked.add(id);
+  }
+  cur=id;unread[id]=0;msgs=[];seen=new Set();
+  $('app').classList.add('chatting');
+  ['head','msgs','comp'].forEach(x=>$(x).hidden=false);$('none').hidden=true;
+  $('hn').textContent=uname(id);$('hav').textContent=uname(id)[0].toUpperCase();
+  $('lockb').textContent=localStorage.getItem(lockKey(id))?'🔒':'🔓';
+  $('msgs').innerHTML='';renderList();
+  await pull();$('msgs').style.scrollBehavior='auto';scrollEnd();$('msgs').style.scrollBehavior='';
+}
+async function pull(){
+  if(!cur)return;const id=cur,last=msgs.length?msgs[msgs.length-1].ts:'';
+  const list=await api('/api/messages?with='+id+(last?'&after='+encodeURIComponent(last):''));
+  if(id!=cur)return;
+  for(const m of list)await addMsg(m);
+}
+async function addMsg(m){
+  if(seen.has(m.id))return;seen.add(m.id);msgs.push(m);
+  const peer=m.from==me.id?m.to:m.from, mine=m.from==me.id;
+  let p;try{p=JSON.parse(dec.decode(await open(peer,m.iv,unb64(m.ct))))}catch{p={k:'text',v:'🔒 Could not decrypt'}}
+  const row=document.createElement('div');row.className='row '+(mine?'me':'them');row.id='m'+m.id;
+  const b=document.createElement('div');b.className='b';
+  const body=document.createElement('div');b.appendChild(body);
+  if(p.k=='text')body.textContent=p.v;
+  else if(m.media)media(m,peer,p,body);
+  const t=document.createElement('time');t.textContent=new Date(m.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});b.appendChild(t);
+  if(mine)b.onclick=async()=>{if(await ask('Delete this message for everyone?',{ok:'Delete'}))api('/api/messages/'+m.id,'DELETE').catch(e=>toast(e.message))};
+  row.appendChild(b);
+  const box=$('msgs'),near=box.scrollHeight-box.scrollTop-box.clientHeight<160;
+  box.appendChild(row);if(near||mine)scrollEnd();
+}
+function media(m,peer,p,body){
+  const load=async()=>{
+    body.innerHTML='<div class="ph">Decrypting…</div>';
+    try{
+      if(!urls[m.id]){
+        const r=await fetch('/api/blob/'+m.id);if(!r.ok)throw 0;
+        const buf=await open(peer,r.headers.get('X-IV'),await r.arrayBuffer());
+        urls[m.id]=URL.createObjectURL(new Blob([buf],{type:p.mime}));
+      }
+      const el=document.createElement(p.k=='img'?'img':'video');el.src=urls[m.id];
+      if(p.k=='vid'){el.controls=true;el.playsInline=true;el.preload='metadata'}else el.onload=()=>{};
+      body.innerHTML='';body.appendChild(el);
+    }catch{body.innerHTML='<div class="ph">Media unavailable</div>'}
+  };
+  if(p.k=='img'||urls[m.id])load();
+  else{body.innerHTML=`<button class="ph">▶ Tap to load video${p.size?' ('+(p.size/1048576).toFixed(1)+' MB)':''}</button>`;body.firstChild.onclick=load}
+}
+const scrollEnd=()=>{const b=$('msgs');b.scrollTop=b.scrollHeight};
+
+// ── sending ──
+async function sendRaw(kind,payload,blob,bIv){
+  const s=await seal(cur,enc.encode(JSON.stringify(payload)));
+  const m=await api('/api/messages','POST',{to:cur,kind,iv:s.iv,ct:b64(s.ct),bIv,blob});
+  await addMsg(m);
+}
+async function sendText(){
+  const v=$('txt').value.trim();if(!v||!cur)return;$('txt').value='';
+  try{await sendRaw('text',{k:'text',v})}catch(e){toast(e.message);$('txt').value=v}
+}
+async function shrink(file){
+  const bm=await createImageBitmap(file),s=Math.min(1,1280/Math.max(bm.width,bm.height));
+  const c=document.createElement('canvas');c.width=Math.round(bm.width*s);c.height=Math.round(bm.height*s);
+  c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+  return new Promise(r=>c.toBlob(r,'image/jpeg',.72));
+}
+async function sendFile(f){
+  if(!f||!cur)return;
+  const isImg=f.type.startsWith('image/'),isVid=f.type.startsWith('video/');
+  if(!isImg&&!isVid)return toast('Only photos and videos');
+  if(isVid&&f.size>8*1048576)return toast('Video is over 8 MB');
+  try{
+    toast('Encrypting…');
+    const blob=isImg?await shrink(f):f;
+    const s=await seal(cur,await blob.arrayBuffer());
+    await sendRaw(isImg?'img':'vid',{k:isImg?'img':'vid',mime:blob.type||f.type,size:blob.size},b64(s.ct),s.iv);
+  }catch(e){toast(e.message||'Could not send')}
+}
+
+// ── chat lock (PIN stays on this device) ──
+$('lockb').onclick=async()=>{
+  const k=lockKey(cur);
+  if(localStorage.getItem(k)){if(await ask('Remove lock from this chat?',{ok:'Remove'})){localStorage.removeItem(k);$('lockb').textContent='🔓';renderList();toast('Lock removed')}}
+  else{const p=await ask('Set a 4–6 digit PIN',{pin:true,ok:'Lock'});
+    if(p===null)return;if(!/^\d{4,6}$/.test(p))return toast('PIN must be 4–6 digits');
+    localStorage.setItem(k,await sha(p+cur));unlocked.add(cur);$('lockb').textContent='🔒';renderList();toast('Chat locked')}
+};
+document.addEventListener('visibilitychange',()=>{ // re-lock when app goes to background
+  if(document.hidden&&cur&&localStorage.getItem(lockKey(cur))){unlocked.delete(cur);$('msgs').classList.add('hide')}
+  else if(!document.hidden&&cur&&$('msgs').classList.contains('hide')){
+    $('msgs').classList.remove('hide');const id=cur;cur=null;openChat(id).then(()=>{if(!cur)goBack()})}
+});
+function goBack(){$('app').classList.remove('chatting');['head','msgs','comp'].forEach(x=>$(x).hidden=true);$('none').hidden=false;cur=null;renderList()}
+
+// ── wire up ──
+$('send').onclick=sendText;
+$('txt').addEventListener('keydown',e=>{if(e.key=='Enter')sendText()});
+$('att').onclick=()=>$('file').click();
+$('file').onchange=e=>{sendFile(e.target.files[0]);e.target.value=''};
+$('back').onclick=()=>{if(cur)unlocked.delete(cur);goBack()};
+$('myid').onclick=()=>{navigator.clipboard?.writeText(me.id);toast('ID copied')};
+$('out').onclick=async()=>{await fetch('/api/logout',{method:'POST'});leave()};
+$('addb').onclick=async()=>{
+  const id=$('aid').value.trim();if(!id)return;
+  try{const p=await api('/api/contacts','POST',{id});contacts.set(p.id,p);$('aid').value='';renderList();openChat(p.id)}catch(e){toast(e.message)}
+};
+$('aid').addEventListener('keydown',e=>{if(e.key=='Enter')$('addb').click()});
+
+// ── start ──
+(async()=>{
+  const pj=localStorage.getItem('lynko_priv');
+  if(!pj)return leave();
+  try{me=await api('/api/me')}catch{return}
+  priv=await crypto.subtle.importKey('jwk',JSON.parse(pj),{name:'ECDH',namedCurve:'P-256'},false,['deriveKey']);
+  $('mid').textContent=me.id;contacts=new Map(me.contacts.map(c=>[c.id,c]));renderList();
+  const cfg=await api('/api/config');
+  const ps=new Pusher(cfg.key,{cluster:cfg.cluster,channelAuthorization:{endpoint:'/api/pusher/auth'}});
+  const ch=ps.subscribe('private-u-'+me.id);
+  ch.bind('msg',async d=>{
+    const peer=d.from==me.id?d.to:d.from;
+    if(!contacts.has(peer)){await reloadContacts();keys={}}
+    if(peer==cur&&!document.hidden)pull();
+    else if(d.from!=me.id){unread[peer]=(unread[peer]||0)+1;renderList()}
+  });
+  ch.bind('del',d=>{const i=msgs.findIndex(m=>m.id==d.id);if(i>-1)msgs.splice(i,1);$('m'+d.id)?.remove()});
+  ps.connection.bind('connected',()=>{if(cur)pull()});
+})();
+</script>
+</body>
+</html>
